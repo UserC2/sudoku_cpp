@@ -46,7 +46,7 @@ void delNum()
 bool keyIsNumber(chtype ch)
 {
 	ch = ch & A_CHARTEXT;
-	return ch >= '0' && ch <= '9';
+	return (ch >= '0' && ch <= '9') || (ch >= '!' && ch <= '(');
 }
 
 void cursesInit(WINDOW* w=stdscr)
@@ -75,6 +75,8 @@ int main()
 		if (ch == constants::exit_key) break;
 		switch (ch)
 		{
+		case ERR:
+			continue; // do nothing if extraction failed
 		case KEY_LEFT:
 			moveLeft(win);
 			break;
@@ -104,7 +106,7 @@ int main()
 			// set cell to number
 		}
 	}
-	
+
 	endwin();
 	return 0;
 }
