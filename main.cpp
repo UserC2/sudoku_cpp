@@ -1,5 +1,124 @@
 #include "constants.h"
 #include <ncurses.h>
+#include <array>
+#include <cassert>
+
+// modify to use base 9 num instead of char for token, then to print you can convert token using switch statement
+class Cell
+{
+private:
+	chtype m_token{ static_cast<chtype>('0') };
+	bool m_isHintCell{ false };
+
+public:
+	Cell() = default;
+	/* Hint cells are non-modifiable and have a different appearance. */
+	Cell(chtype token, bool isHintCell)
+		: m_token{ (isHintCell ? token | A_REVERSE : token) }
+		// A_BOLD?
+		, m_isHintCell{ isHintCell }
+	{}
+
+	/* Print token to current cursor position */
+	void print(WINDOW* win) const { waddch(win, m_token); }
+	/* Return current token */
+	chtype token() const { return m_token; }
+	/* Change token to 'ch'. */
+	void update(WINDOW* win, chtype ch) 
+	{ 
+		if (m_isHintCell) return;
+		m_token = ch & A_CHARTEXT;
+		print(win);
+	}
+};
+
+class Grid
+{
+private:
+	// I guarantee there is a std type that does this
+	Cell array[9][9]{};
+	Cell outOfRange{ 9, true };
+	// ^ replace with assert later (user shouldn't be able to select invalid cell)
+
+private:
+	void printSquare(WINDOW* win, int x, int y) // x, y of square, start at 0 (e.g. middle: 1, 1)
+	{
+		int oy;
+		int ox;
+		getyx(win, oy, ox);
+		x *= 3; // 3
+		y *= 3; // 0
+		for (int ly{ 0 }; ly < 3; ly++)
+		{
+			for (int lx{ 0 }; lx < 3; lx++)
+			{
+				waddch(win, array[lx + x][ly + y].token());
+			}
+			int yy, xx;
+			getyx(win, yy, xx);
+			wmove(win, yy + 1, ox);
+		}
+		wmove(win, oy, ox + 3);
+	}
+
+public:
+	Cell& findCell(WINDOW* win)
+	{
+		int y;
+		int x;
+		getyx(win, y, x);
+		if (y > 8 || x > 8)
+			return outOfRange;
+		return array[x][y];
+	}
+
+	void print(WINDOW* win)
+	{
+		wclear(win);
+		for (int y{ 0 }; y < 3; y++)
+		{
+			for (int x{ 0 }; x < 3; x++)
+			{
+				printSquare(win, x, y);
+			}
+			int cy;
+			int cx;
+			getyx(win, cy, cx);
+			wmove(win, cy + 3, 0);
+		}
+		wmove(win, 10, 0);
+		Cell c{ 48, true };
+		waddch(win, c.token());
+		/*
+		for (int y{ 0 }; y < 9; y++)
+		{
+			for (int x{ 0 }; x < 9; x++)
+			{
+				wprintw(win, "%c", array[x][y].value());
+			}
+			wprintw(win, "\n");
+		}
+		*/
+		/*
+		for (int a{ 1 }; a < 4; a++)
+		{
+			for (int y{ 1 }; y < 4; y++)
+			{
+				for (int b{ 1 }; b < 4; b++)
+				{
+					for (int x{ 1 }; x < 4; x++)
+					{
+						wprintw(win, "%c ", array[(x * b) - 1][(y * a) - 1].value());
+					}
+					if (b < 3) wprintw(win, "| ");
+				}
+				wprintw(win, "\n");
+			}
+			if (a < 3) wprintw(win, "- - -   - - -   - - -\n");
+		}
+		*/
+	}
+};
 
 void moveLeft(WINDOW* win)
 {
@@ -46,7 +165,7 @@ void delNum()
 bool keyIsNumber(chtype ch)
 {
 	ch = ch & A_CHARTEXT;
-	return (ch >= '0' && ch <= '9') || (ch >= '!' && ch <= '(');
+	return (ch >= '1' && ch <= '9');
 }
 
 void cursesInit(WINDOW* w=stdscr)
@@ -58,25 +177,18 @@ void cursesInit(WINDOW* w=stdscr)
 	scrollok(w, FALSE); // no scrolling allowed
 }
 
-/*mvvline(1, 6, '|', 11);
-mvvline(1, 13, '|', 11);
-mvhline(4, 0, '-', 20);
-mvhline(8, 0, '-', 20);*/
-
 int main()
 {
 	initscr();
 	WINDOW* win = stdscr;
 	cursesInit(win);
+	Grid grid;
 
-	while (true)
+	chtype ch{ 0 };
+	while ((ch = wgetch(win)) != constants::exit_key)
 	{
-		int ch{ getch() };
-		if (ch == constants::exit_key) break;
 		switch (ch)
 		{
-		case ERR:
-			continue; // do nothing if extraction failed
 		case KEY_LEFT:
 			moveLeft(win);
 			break;
@@ -99,12 +211,17 @@ int main()
 		case '\b':
 			delNum();
 			break;
+		case constants::print_key:
+			grid.print(win);
+			break;
+		default:
+			break; // move on if no matching keys
 		}
 		if (keyIsNumber(ch))
 		{
-			printw("num");
-			// set cell to number
+			grid.findCell(win).update(win, ch);
 		}
+		refresh();
 	}
 
 	endwin();
