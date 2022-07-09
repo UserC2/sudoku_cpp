@@ -41,7 +41,7 @@ private:
 	// ^ replace with assert later (user shouldn't be able to select invalid cell)
 
 private:
-	void printSquare(WINDOW* win, int x, int y) // x, y of square, start at 0 (e.g. middle: 1, 1)
+	void printSquare(WINDOW* win, int x, int y) const // x, y of square, start at 0 (e.g. middle: 1, 1)
 	{
 		int oy;
 		int ox;
@@ -72,7 +72,7 @@ public:
 		return array[x][y];
 	}
 
-	void print(WINDOW* win)
+	void print(WINDOW* win) const
 	{
 		wclear(win);
 		for (int y{ 0 }; y < 3; y++)
@@ -81,10 +81,7 @@ public:
 			{
 				printSquare(win, x, y);
 			}
-			int cy;
-			int cx;
-			getyx(win, cy, cx);
-			wmove(win, cy + 3, 0);
+			wmove(win, getcury(win) + 3, 0);
 		}
 		wmove(win, 10, 0);
 		Cell c{ 48, true };
@@ -117,6 +114,31 @@ public:
 			if (a < 3) wprintw(win, "- - -   - - -   - - -\n");
 		}
 		*/
+	}
+
+	/* Print an empty grid. Call this once before any calls to print(). */
+	void printBase(WINDOW* win) const
+	{
+		wmove(win, 0, 0);
+		// print vertical dividers
+		for (int x{ 6 }; x < 15 ; x += 8)
+		{
+			for (int y{ 0 }; y < 9; y += 4)
+			{
+				mvwvline(win, y, x, '|', 3);
+				wmove(win, getcury(win) + 1, getcurx(win));
+				mvwvline(win, y, x, '|', 3);
+				wmove(win, getcury(win) + 1, getcurx(win));
+				mvwvline(win, y, x, '|', 3);
+			}
+		}
+		// print horizontal dividers
+		for (int y{ 3 }; y < 8 ; y += 4)
+		{
+			wmove(win, y, 0);
+			wprintw(win, "- - -   - - -   - - -");
+		}
+		wmove(win, 0, 0);
 	}
 };
 
@@ -212,7 +234,8 @@ int main()
 			delNum();
 			break;
 		case constants::print_key:
-			grid.print(win);
+			//grid.print(win);
+			grid.printBase(win);
 			break;
 		default:
 			break; // move on if no matching keys
