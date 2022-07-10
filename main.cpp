@@ -75,17 +75,29 @@ public:
 	void print(WINDOW* win) const
 	{
 		wclear(win);
-		for (int y{ 0 }; y < 3; y++)
+		// for (int y{ 0 }; y < 3; y++)
+		// {
+		// 	for (int x{ 0 }; x < 3; x++)
+		// 	{
+		// 		printSquare(win, x, y);
+		// 	}
+		// 	wmove(win, getcury(win) + 3, 0);
+		// }
+		// wmove(win, 10, 0);
+		// Cell c{ 48, true };
+		// waddch(win, c.token());
+		for (int y{ 0 }; y < 9; y++)
 		{
-			for (int x{ 0 }; x < 3; x++)
+			if ((y == 3) || (y == 6))
 			{
-				printSquare(win, x, y);
+				wprintw(win, constants::hDivider);
+				wprintw(win, "\n");
 			}
-			wmove(win, getcury(win) + 3, 0);
+			wprintw(win, "%c %c %c | %c %c %c | %c %c %c\n", array[0][y],
+				array[1][y], array[2][y], array[3][y], array[4][y],
+				array[5][y], array[6][y], array[7][y], array[8][y]);
 		}
-		wmove(win, 10, 0);
-		Cell c{ 48, true };
-		waddch(win, c.token());
+		wmove(win, 0, 0);
 		/*
 		for (int y{ 0 }; y < 9; y++)
 		{
@@ -136,7 +148,7 @@ public:
 		for (int y{ 3 }; y < 8 ; y += 4)
 		{
 			wmove(win, y, 0);
-			wprintw(win, "- - -   - - -   - - -");
+			wprintw(win, constants::hDivider);
 		}
 		wmove(win, 0, 0);
 	}
@@ -147,7 +159,8 @@ void moveLeft(WINDOW* win)
 	int y;
 	int x;
 	getyx(win, y, x);
-	move(y, x - 1);
+	int movement{ ((x == 8) || (x == 16)) ? x - 4 : x - 2 };
+	wmove(win, y, movement);
 }
 
 void moveRight(WINDOW* win)
@@ -155,7 +168,8 @@ void moveRight(WINDOW* win)
 	int y;
 	int x;
 	getyx(win, y, x);
-	move(y, x + 1);
+	int movement{ ((x == 4) || (x == 12)) ? x + 4 : x + 2 };
+	wmove(win, y, movement);
 }
 
 void moveUp(WINDOW* win)
@@ -163,7 +177,8 @@ void moveUp(WINDOW* win)
 	int y;
 	int x;
 	getyx(win, y, x);
-	move(y - 1, x);
+	int movement{ ((y == 4) || (y == 8)) ? y - 2 : y - 1 };
+	wmove(win, movement, x);
 }
 
 void moveDown(WINDOW* win)
@@ -171,7 +186,8 @@ void moveDown(WINDOW* win)
 	int y;
 	int x;
 	getyx(win, y, x);
-	move(y + 1, x);
+	int movement{ ((y == 2) || (y == 6)) ? y + 2 : y + 1 };
+	wmove(win, movement, x);
 }
 
 void confirmNum()
@@ -212,15 +228,19 @@ int main()
 		switch (ch)
 		{
 		case KEY_LEFT:
+		case 'a':
 			moveLeft(win);
 			break;
 		case KEY_RIGHT:
+		case 'd':
 			moveRight(win);
 			break;
 		case KEY_UP:
+		case 'w':
 			moveUp(win);
 			break;
 		case KEY_DOWN:
+		case 's':
 			moveDown(win);
 			break;
 		case KEY_ENTER:
@@ -234,8 +254,8 @@ int main()
 			delNum();
 			break;
 		case constants::print_key:
-			//grid.print(win);
-			grid.printBase(win);
+			grid.print(win);
+			//grid.printBase(win);
 			break;
 		default:
 			break; // move on if no matching keys
