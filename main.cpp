@@ -4,10 +4,11 @@
 #include <cassert>
 
 // modify to use base 9 num instead of char for token, then to print you can convert token using switch statement
+// actually use base 10 (0 for invalid) so that 1 value can be blank
 class Cell
 {
 private:
-	chtype m_token{ static_cast<chtype>('0') };
+	chtype m_token{ constants::erase_value };
 	bool m_isHintCell{ false };
 
 public:
@@ -19,8 +20,18 @@ public:
 		, m_isHintCell{ isHintCell }
 	{}
 
+	void erase(WINDOW* win) 
+	{
+		m_token = constants::erase_value;
+		print(win);
+	}
 	/* Print token to current cursor position */
-	void print(WINDOW* win) const { waddch(win, m_token); }
+	void print(WINDOW* win) const 
+	{ 
+		waddch(win, m_token); 
+		wmove(win, getcury(win), getcurx(win) - 1); 
+		// ^ move back one so cursor is selecting this cell
+	}
 	/* Return current token */
 	chtype token() const { return m_token; }
 	/* Change token to 'ch'. */
@@ -75,60 +86,25 @@ public:
 	void print(WINDOW* win) const
 	{
 		wclear(win);
-		// for (int y{ 0 }; y < 3; y++)
-		// {
-		// 	for (int x{ 0 }; x < 3; x++)
-		// 	{
-		// 		printSquare(win, x, y);
-		// 	}
-		// 	wmove(win, getcury(win) + 3, 0);
-		// }
-		// wmove(win, 10, 0);
-		// Cell c{ 48, true };
-		// waddch(win, c.token());
+		wmove(win, 0, 0);
 		for (int y{ 0 }; y < 9; y++)
 		{
 			if ((y == 3) || (y == 6))
 			{
-				wprintw(win, constants::hDivider);
-				wprintw(win, "\n");
+				wprintw(win, constants::h_divider);
+				wmove(win, getcury(win), 0);
+				// ^ wprintw moves to new line when it reaches end of window
 			}
-			wprintw(win, "%c %c %c | %c %c %c | %c %c %c\n", array[0][y],
+			wprintw(win, "%c %c %c | %c %c %c | %c %c %c", array[0][y],
 				array[1][y], array[2][y], array[3][y], array[4][y],
 				array[5][y], array[6][y], array[7][y], array[8][y]);
+				wmove(win, getcury(win), 0);
 		}
 		wmove(win, 0, 0);
-		/*
-		for (int y{ 0 }; y < 9; y++)
-		{
-			for (int x{ 0 }; x < 9; x++)
-			{
-				wprintw(win, "%c", array[x][y].value());
-			}
-			wprintw(win, "\n");
-		}
-		*/
-		/*
-		for (int a{ 1 }; a < 4; a++)
-		{
-			for (int y{ 1 }; y < 4; y++)
-			{
-				for (int b{ 1 }; b < 4; b++)
-				{
-					for (int x{ 1 }; x < 4; x++)
-					{
-						wprintw(win, "%c ", array[(x * b) - 1][(y * a) - 1].value());
-					}
-					if (b < 3) wprintw(win, "| ");
-				}
-				wprintw(win, "\n");
-			}
-			if (a < 3) wprintw(win, "- - -   - - -   - - -\n");
-		}
-		*/
 	}
 
-	/* Print an empty grid. Call this once before any calls to print(). */
+	/* Print an empty grid. */
+	/*
 	void printBase(WINDOW* win) const
 	{
 		wmove(win, 0, 0);
@@ -148,10 +124,11 @@ public:
 		for (int y{ 3 }; y < 8 ; y += 4)
 		{
 			wmove(win, y, 0);
-			wprintw(win, constants::hDivider);
+			wprintw(win, constants::h_divider);
 		}
 		wmove(win, 0, 0);
 	}
+	*/
 };
 
 void moveLeft(WINDOW* win)
@@ -159,8 +136,16 @@ void moveLeft(WINDOW* win)
 	int y;
 	int x;
 	getyx(win, y, x);
-	int movement{ ((x == 8) || (x == 16)) ? x - 4 : x - 2 };
-	wmove(win, y, movement);
+	if (x == 0)
+	{
+		int movement{ ((y == 5) || (y == 9)) ? y - 2 : y - 1 };
+		wmove(win, movement, getmaxx(win) - 1);
+	}
+	else
+	{
+		int movement{ ((x == 8) || (x == 16)) ? x - 4 : x - 2 };
+		wmove(win, y, movement);
+	}
 }
 
 void moveRight(WINDOW* win)
@@ -168,8 +153,16 @@ void moveRight(WINDOW* win)
 	int y;
 	int x;
 	getyx(win, y, x);
-	int movement{ ((x == 4) || (x == 12)) ? x + 4 : x + 2 };
-	wmove(win, y, movement);
+	if (x == getmaxx(win) - 1)
+	{
+		int movement{ ((y == 2) || (y == 6)) ? y + 2 : y + 1 };
+		wmove(win, movement, 0);
+	}
+	else
+	{
+		int movement{ ((x == 4) || (x == 12)) ? x + 4 : x + 2 };
+		wmove(win, y, movement);
+	}
 }
 
 void moveUp(WINDOW* win)
@@ -190,16 +183,6 @@ void moveDown(WINDOW* win)
 	wmove(win, movement, x);
 }
 
-void confirmNum()
-{
-	printw("confirm");
-}
-
-void delNum()
-{
-	printw("del");
-}
-
 bool keyIsNumber(chtype ch)
 {
 	ch = ch & A_CHARTEXT;
@@ -218,7 +201,7 @@ void cursesInit(WINDOW* w=stdscr)
 int main()
 {
 	initscr();
-	WINDOW* win = stdscr;
+	WINDOW* win = newwin(constants::win_height, constants::win_width, 0, 0);
 	cursesInit(win);
 	Grid grid;
 
@@ -231,6 +214,9 @@ int main()
 		case 'a':
 			moveLeft(win);
 			break;
+		case KEY_ENTER:
+		case '\n':
+		case '\r':
 		case KEY_RIGHT:
 		case 'd':
 			moveRight(win);
@@ -243,19 +229,13 @@ int main()
 		case 's':
 			moveDown(win);
 			break;
-		case KEY_ENTER:
-		case '\n':
-		case '\r':
-			confirmNum();
-			break;
 		case KEY_BACKSPACE:
 		case constants::backspace_keycode:
 		case '\b':
-			delNum();
+			grid.findCell(win).erase(win);
 			break;
 		case constants::print_key:
 			grid.print(win);
-			//grid.printBase(win);
 			break;
 		default:
 			break; // move on if no matching keys
@@ -264,7 +244,7 @@ int main()
 		{
 			grid.findCell(win).update(win, ch);
 		}
-		refresh();
+		wrefresh(win);
 	}
 
 	endwin();
