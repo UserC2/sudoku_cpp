@@ -6,6 +6,7 @@
 - Need sudoku game
 - "Not-nice" mode where all numbers are swapped for their respective symbols:
 - ! @ # $ % ^ & * (
-- Entry of the number or the shifted number should still result in the same output
+- Entry of the number or the shifted number should still result in the same output (yeah sure how about no)
 - File of pre-generated sudoku games
 - Way of inputting games from file
+- Line up cells with position onscreen (done)
