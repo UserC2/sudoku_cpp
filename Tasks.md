@@ -10,3 +10,8 @@
 - File of pre-generated sudoku games
 - Way of inputting games from file
 - Line up cells with position onscreen (done)
+- Controls window with controls (what did you think)
+- ^ check that terminal is appropriately sized before trying to print this
+- Grid::findCell todo
+- Grid array should be std::array?
+- More efficient Cell?
