@@ -16,3 +16,12 @@ For example:
 9 7 3 | 2 4 8 | 1 6 5
 8 1 4 | 5 6 9 | 7 3 2
 ```
+
+Controls:
+- SHIFT + (key) for commands
+- SHIFT + ~ to quit (change to SHIFT + Q)
+- SHIFT + P to print board (temporary)
+- 1, 2, 3, 4, 5, 6, 7, 8, 9 to enter numbers
+- Backspace to delete a cell's contents
+- Up/Down/Left/Right Arrow to move from cell to cell
+- Enter to advance to next cell
