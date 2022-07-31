@@ -1,5 +1,5 @@
 #include "constants.h"
-#include "Grid.h"
+#include "Board.h"
 #include <ncurses.h>
 
 void moveLeft(WINDOW* win)
@@ -74,7 +74,7 @@ int main()
 	initscr();
 	WINDOW* win = newwin(constants::win_height, constants::win_width, 0, 0);
 	cursesInit(win);
-	Grid grid;
+	Board grid;
 
 	chtype ch{ 0 };
 	while ((ch = wgetch(win)) != constants::exit_key)

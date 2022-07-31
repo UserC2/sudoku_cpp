@@ -6,14 +6,14 @@
 //#include <array>
 #include <map>
 
-class Grid final
+class Board final
 {
 private:
 	Cell array[9][9]{}; // std::array? // alternatively, make this a seperate type so that it can be used by the text interface header
-	const static std::map<int, int> xMap;
+	const static std::map<int, int> m_xMap;
 
 public:
-	Grid()
+	Board()
 	{
 	}
 

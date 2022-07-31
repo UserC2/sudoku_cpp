@@ -1,11 +1,11 @@
-#include "Grid.h"
+#include "Board.h"
 #include "Cell.h"
 #include "constants.h"
 #include <ncurses.h>
 #include <cassert>
 #include <map>
 
-void Grid::printSquare(WINDOW* win, int x, int y) const
+void Board::printSquare(WINDOW* win, int x, int y) const
 {
 	int oy;
 	int ox;
@@ -25,7 +25,7 @@ void Grid::printSquare(WINDOW* win, int x, int y) const
 	wmove(win, oy, ox + 3);
 }
 
-Cell& Grid::findCell(WINDOW* win)
+Cell& Board::findCell(WINDOW* win)
 {
 	int y;
 	int x;
@@ -41,10 +41,10 @@ Cell& Grid::findCell(WINDOW* win)
 	// horizontal borders
 	if (y > 3) y--;
 	if (y > 6) y--;
-	return array[xMap.at(x)][y];
+	return array[m_xMap.at(x)][y];
 }
 
-void Grid::print(WINDOW* win) const
+void Board::print(WINDOW* win) const
 {
 	wclear(win);
 	wmove(win, 0, 0);
@@ -91,7 +91,7 @@ void Grid::printBase(WINDOW* win) const
 }
 */
 
-const std::map<int, int> Grid::xMap
+const std::map<int, int> Board::m_xMap
 { 
 	{ 0, 0 },
 	{ 2, 1 },
