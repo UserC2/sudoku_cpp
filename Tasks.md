@@ -15,3 +15,6 @@
 - Grid::findCell todo
 - Grid array should be std::array?
 - More efficient Cell?
+
+## Done:
+- Updating a cell should move to the next one

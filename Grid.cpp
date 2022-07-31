@@ -36,7 +36,6 @@ Cell& Grid::findCell(WINDOW* win)
 		// invalid ranges:
 		// y 3, 7
 		// x 5, 6, 7, 13, 14, 15
-		//return outOfRange;
 		assert(false && "Invalid Grid Cell");
 	}
 	// horizontal borders

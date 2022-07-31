@@ -114,6 +114,7 @@ int main()
 		if (keyIsNumber(ch))
 		{
 			grid.findCell(win).update(win, ch);
+			moveRight(win);
 		}
 		wrefresh(win);
 	}
