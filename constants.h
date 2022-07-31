@@ -1,3 +1,6 @@
+#ifndef SUDOKU_CONSTANTS_H
+#define SUDOKU_CONSTANTS_H
+
 #include <ncurses.h>
 
 namespace constants
@@ -10,3 +13,5 @@ namespace constants
 	constexpr chtype exit_key{ static_cast<chtype>('~') };
 	constexpr chtype print_key{ static_cast<chtype>('P') };
 }
+
+#endif
