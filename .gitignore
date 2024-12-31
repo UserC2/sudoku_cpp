@@ -1,2 +1,5 @@
-sudoku
+# VS Code folder
 .vscode
+# binaries
+Solver/solver
+sudoku

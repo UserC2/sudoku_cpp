@@ -10,7 +10,7 @@ class Board final
 {
 private:
 	Cell array[9][9]{}; // std::array? // alternatively, make this a seperate type so that it can be used by the text interface header
-	static const std::map<int, int> m_xMap;
+	const static std::map<int, int> m_xMap;
 
 public:
 	Board()
